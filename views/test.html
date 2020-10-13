@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<script type="text/javascript">
+function tend(){
+    
+    console.log("test");
+    var formData = new FormData() // 声明一个FormData对象
+    var formData = new window.FormData() // vue 中使用 window.FormData(),否则会报 'FormData isn't definded'
+    formData.append('userfile', document.querySelector('input[type=file]').files[0]) // 'userfile' 这个名字要和后台获取文件的名字一样;
+    var url="http://localhost:3000/upload_file"                                                                             //'userfile'是formData这个对象的键名
+    // XMLHttpRequest 对象
+    var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.onload = function () {
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    // 查看后台反馈
+                    /*if(callback){
+                        var req = xhr.responseText;
+                        callback(req);
+                    };*/
+                    console.log(xhr.responseText);
+                } else if(xhr.readyState == 4 && xhr.status == 404){
+                    //callback({allow:'error'});
+                    return;
+                };
+            };
+            xhr.upload.onprogress = function(evt){ 
+                //侦查附件上传情况 
+                //通过事件对象侦查 
+                //该匿名函数表达式大概0.05-0.1秒执行一次 
+                //console.log(evt); 
+                //console.log(evt.loaded);  //已经上传大小情况 
+                //evt.total; 附件总大小 
+                var loaded = evt.loaded; 
+                var tot = evt.total; 
+                var per = Math.floor(100*loaded/tot); 
+                var son =  document.getElementById('son'); 
+                son.innerHTML = per+"%"; 
+                //son.style.width=per+"%"; 
+            } 
+            xhr.send(formData);
+}
+</script>
+<body>
+    <form action="http://localhost:3000/upload_file" method="post" target="stop" enctype="multipart/form-data">
+        <!--<input type="value" name='account'>-->
+        <input type="file" name='user'>
+        <input type="submit" value="上传">
+    </form>
+    <!-- 阻止提交跳转页面 -->
+    <iframe  name="stop" style="display:none;"></iframe> 
+    <p id="son"></p>
+    <input type="file" class="file"> // 通过file来选择需要上传的文件
+    <input type="button" value="upload file" onclick="tend();">
+</body>
+</html>
